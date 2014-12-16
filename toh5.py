@@ -62,10 +62,10 @@ def convert_chain(
                                  maxshape=(None,),
                                  dtype=np.float64,
                                  chunks=(chunksize,),
-                                 compression='lzf',
+                                 compression='gzip',
                                  shuffle=True)
 
-        dset.attr.create('unit', u)
+        dset.attrs.create('unit', u.encode('utf8'))
 
     with open(txtfile, 'r') as f:
         for chunk in filechunk(f, chunksize):
