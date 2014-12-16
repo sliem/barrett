@@ -171,7 +171,7 @@ class twoD:
         fig.savefig(path)
 
 
-    def credibleregions(self, probs, smoothing=True):
+    def credibleregions(self, probs, smoothing=False):
         """ Calculates the one and two sigma credible regions.
 
         The algorithm is extremely simple: 
