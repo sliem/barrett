@@ -11,9 +11,7 @@ Specific technologies: MPI, HDF5, and Python (h5py, mpi4py, numpy, matplotlib).
 
 # TODO
 
-- Calculating the posterior (1D and 2D)
 - Calculating the profile likelihood (1D and 2D)
-- Credibility intervals (1D and 2D)
 - Confidence intervals (1D and 2D)
 - Plotting.
 - Transform values, e.g. change units, log, exponentiate.
