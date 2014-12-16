@@ -14,7 +14,7 @@ def filechunk(f, chunksize):
 
 
 def parse_infofile(fname):
-    """Parse a info file and returns headers, units and other metadata as lists."""
+    """Parse a SuperBayeS info file and returns headers, units and other metadata as lists."""
 
     headers = ['mult', '-2lnL']
     units = ['', '']
@@ -42,12 +42,12 @@ def convert_chain(
     """Converts a chain in plain text format into HDF5 format.
 
     Keyword arguments:
-    txtfile -- path to the chain in plain text.
+    txtfile -- path to the plain text chain.
     infofile -- path to associated info file with metadata.
-    h5file -- path to where to put the resulting HDF5 file.
+    h5file -- where to put the resulting HDF5 file.
     chunksize -- how large the HDF5 chunk, i.e. number of rows.
 
-    Chunking - Howto pick a chunksize
+    Chunking - How to pick a chunksize
     TODO Optimal chunk size unknown, our usage make caching irrelevant, and 
     we use all read variable. Larger size should make compression more efficient,
     and less require less IO reads. Measurements needed.
