@@ -4,6 +4,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import scipy.ndimage as ndimage
 import h5py
+import util
 
 class oneD:
     """ Calculate and plot the one dimensional marginalised posteriors.
@@ -18,7 +19,7 @@ class oneD:
             self.name = f[self.var].name
             self.unit = f[self.var].attrs['unit'].decode('utf8')
         
-        self.min, self.max, self.mean = threenum(self.h5file, self.var)
+        self.min, self.max, self.mean = util.threenum(self.h5file, self.var)
 
         if nbins != None:
             self.nbins = nbins
@@ -95,8 +96,8 @@ class twoD:
             self.yname = f[self.yvar].name
             self.yunit = f[self.yvar].attrs['unit'].decode('utf8')
         
-        self.xmin, self.xmax, self.xmean = threenum(self.h5file, self.xvar)
-        self.ymin, self.ymax, self.ymean = threenum(self.h5file, self.yvar)
+        self.xmin, self.xmax, self.xmean = util.threenum(self.h5file, self.xvar)
+        self.ymin, self.ymax, self.ymean = util.threenum(self.h5file, self.yvar)
 
         if nbins != None:
             self.nbins = nbins
@@ -204,41 +205,4 @@ class twoD:
 
                 z += step
         return levels
-
-
-def threenum(h5file, var):
-    """ Calculates the three number summary for a variable.
-    
-    The three number summary is the minimum, maximum and the mean 
-    of the data. Traditionally one would summerise data with the 
-    five number summary: max, min, 1st, 2nd (median), 3rd quartile.
-    But quantiles are hard to calculate without sorting the data 
-    which hard to do out-of-core.
-    """
-    f = h5py.File(h5file, 'r')
-    d = f[var]
-    w = f['mult']
-    s = d.chunks[0]
-
-    n = d.shape[0]
-    maxval = d[0]
-    minval = d[0]
-    total = 0
-    wsum = 0
-
-    for x in range(0, n, s):
-
-        chunk_max = np.max(d[x:x+s])
-        chunk_min = np.min(d[x:x+s])
-
-        maxval = chunk_max if chunk_max > maxval else maxval
-        minval = chunk_min if chunk_min < minval else minval
-
-        total += np.sum(w[x:x+s]*d[x:x+s])
-        wsum  += np.sum(w[x:x+s])
-    f.close()
-
-    mean = total/wsum
-
-    return (minval, maxval, mean)
 
