@@ -217,12 +217,14 @@ def threenum(h5file, var):
     """
     f = h5py.File(h5file, 'r')
     d = f[var]
+    w = f['mult']
     s = d.chunks[0]
 
     n = d.shape[0]
     maxval = d[0]
     minval = d[0]
     total = 0
+    wsum = 0
 
     for x in range(0, n, s):
 
@@ -232,11 +234,11 @@ def threenum(h5file, var):
         maxval = chunk_max if chunk_max > maxval else maxval
         minval = chunk_min if chunk_min < minval else minval
 
-        total += np.sum(d[x:x+s])
-
+        total += np.sum(w[x:x+s]*d[x:x+s])
+        wsum  += np.sum(w[x:x+s])
     f.close()
 
-    mean = total/float(n)
+    mean = total/wsum
 
     return (minval, maxval, mean)
 
