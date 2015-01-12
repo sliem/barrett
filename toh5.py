@@ -13,37 +13,18 @@ def filechunk(f, chunksize):
         yield np.loadtxt(iter(chunk), dtype=np.float64)
 
 
-def parse_infofile(fname):
-    """Parse a SuperBayeS info file and returns headers, units and other metadata as lists."""
-
-    headers = ['mult', '-2lnL']
-    units = ['', '']
-    metadata = []
-
-    with open(fname, 'r') as f:
-        for l in f:
-            if l[0:3] == 'lab':
-                v = l.split('=')[1].split('(')
-                headers.append(v[0].strip())
-
-                if len(v) > 1:
-                    units.append(v[1].strip()[:-1])
-                else:
-                    units.append('')
-
-    return (headers, units, metadata)
-
-
 def convert_chain(
         txtfile,
-        infofile,
+        headers,
+        units,
         h5file,
         chunksize):
     """Converts a chain in plain text format into HDF5 format.
 
     Keyword arguments:
     txtfile -- path to the plain text chain.
-    infofile -- path to associated info file with metadata.
+    headers -- name of each column.
+    units -- the unit of each column.
     h5file -- where to put the resulting HDF5 file.
     chunksize -- how large the HDF5 chunk, i.e. number of rows.
 
@@ -52,7 +33,6 @@ def convert_chain(
     we use all read variable. Larger size should make compression more efficient,
     and less require less IO reads. Measurements needed.
     """
-    headers, units, metadata = parse_infofile(infofile)
 
     h5 = h5py.File(h5file, 'w')
 
