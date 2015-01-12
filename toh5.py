@@ -14,7 +14,7 @@ def filechunk(f, chunksize):
 
 
 def convert_chain(
-        txtfile,
+        txtfiles,
         headers,
         units,
         h5file,
@@ -22,7 +22,7 @@ def convert_chain(
     """Converts a chain in plain text format into HDF5 format.
 
     Keyword arguments:
-    txtfile -- path to the plain text chain.
+    txtfiles -- list of paths to the plain text chains.
     headers -- name of each column.
     units -- the unit of each column.
     h5file -- where to put the resulting HDF5 file.
@@ -47,25 +47,26 @@ def convert_chain(
 
         dset.attrs.create('unit', u.encode('utf8'))
 
-    with open(txtfile, 'r') as f:
-        for chunk in filechunk(f, chunksize):
+    for txtfile in txtfiles:
+        with open(txtfile, 'r') as f:
+            for chunk in filechunk(f, chunksize):
 
-            if chunk.shape == (): # single value, only happens for single column txt files
-                nrows = 1
-            else:
-                nrows = chunk.shape[0]
-
-            for pos, h in enumerate(headers):
-                dset = h5[h]
-                old_nrows = dset.shape[0]
-                dset.resize(old_nrows+nrows, axis=0)
-
-                if chunk.shape == (): # single value
-                    dset[old_nrows] = chunk
-                elif len(chunk.shape) == 1: # txt file contains only one column
-                    dset[old_nrows:] = chunk
+                if chunk.shape == (): # single value, only happens for single column txt files
+                    nrows = 1
                 else:
-                    dset[old_nrows:] = chunk[:,pos]
+                    nrows = chunk.shape[0]
+
+                for pos, h in enumerate(headers):
+                    dset = h5[h]
+                    old_nrows = dset.shape[0]
+                    dset.resize(old_nrows+nrows, axis=0)
+
+                    if chunk.shape == (): # single value
+                        dset[old_nrows] = chunk
+                    elif len(chunk.shape) == 1: # txt file contains only one column
+                        dset[old_nrows:] = chunk
+                    else:
+                        dset[old_nrows:] = chunk[:,pos]
 
     h5.close()
 
