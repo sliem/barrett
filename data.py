@@ -10,12 +10,10 @@ class Chain:
         if not os.path.isfile(self.h5file):
             f = h5py.File(self.h5file, 'x')
             self.chunksize = chunksize
-            self.n = 0
         else:
             f = h5py.File(self.h5file, 'r')
             self.chunksize = f['mult'].chunks[0]
-            self.n = f['mult'].shape[0]
-
+  
         f.close()
 
 
@@ -23,7 +21,7 @@ class Chain:
         h5 = h5py.File(self.h5file, 'r+')
 
         dset = h5.create_dataset(h5,
-                                 shape=(self.n,),
+                                 shape=(0,),
                                  maxshape=(None,),
                                  dtype=np.float64,
                                  chunks=(self.chunksize,),
@@ -67,4 +65,33 @@ class Chain:
 
     def transform_column(self, column, unit=None, func):
         self.apply(column, unit, func, column)
+
+
+    def append(self, other):
+        h5 = h5py.File(self.h5file, 'r+')
+
+        other_h5 = h5py.File(self.h5file, 'r')
+
+        sym_diff_keys = set(h5.keys()) ^ set(other_h5.keys())
+        if len(sym_diff_keys) != 0:
+            print('Not compatible datasets. Symmetric difference: %s\n' % sym_diff_keys)
+            return
+
+        other_n = other_h5['mult'].shape[0]
+
+        starts = list(range(0, other_n, self.chunksize))
+        ends   = starts[1:] + [other_n]
+
+        for s, e in zip(starts, ends):   
+            for k in other_h5.keys():
+                other_nrows = e-s
+
+                nrows = h5[k].shape[0]
+
+                h5[k].resize(nrows+other_nrows, axis=0)
+
+                h5[k][nrows:] = other_h5[k][s:e]
+
+        h5.close()
+        other_h5.close()
 
