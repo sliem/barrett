@@ -4,7 +4,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import scipy.ndimage as ndimage
 import h5py
-import util
+import barrett.util as util
 
 class oneD:
     """ Calculate and plot the one dimensional marginalised posteriors.
