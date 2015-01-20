@@ -64,7 +64,7 @@ class oneD:
                  color='red')
 
         plt.ylim(0, self.proflike.max()*1.1)
-        plt.xlabel('%s |%s]' % (self.name, self.unit))
+        plt.xlabel('%s [%s]' % (self.name, self.unit))
 
         fig.savefig(path)
 
@@ -125,12 +125,12 @@ class twoD:
         self.bins = bins / bins.sum()
 
         # Calculate the smoothed bins.
-        self.bins_smoothed = ndimage.gaussian_filter(
-                    self.bins,
-                    sigma=(self.xbin_widths[0], self.ybin_widths[0]),
-                    order = 0)
+        # self.bins_smoothed = ndimage.gaussian_filter(
+        #            self.bins,
+        #            sigma=(self.xbin_widths[0], self.ybin_widths[0]),
+        #            order = 0)
 
-        self.bins_smoothed = self.bins_smoothed / self.bins_smoothed.sum()
+        #self.bins_smoothed = self.bins_smoothed / self.bins_smoothed.sum()
 
         f.close()
 
