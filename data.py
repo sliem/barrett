@@ -67,3 +67,11 @@ class Chain:
     def transform_column(self, column, unit, func):
         self.apply(column, unit, func, column)
 
+
+    def log(self, column):
+        h5 = h5py.File(self.h5file, 'r+')
+
+        unit = 'log(%s)' % h5[column].attrs.get('unit').decode('utf8')
+        self.apply('log(%s)' % column, unit, np.log10, column)
+
+        h5.close()
