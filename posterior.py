@@ -130,7 +130,7 @@ class twoD:
             bins = bins + ret[0]
 
         # Normalise so the sum of the bins is one, i.e. we have a pdf.
-        self.bins = bins / bins.sum()
+        self.bins = bins.T / bins.sum()
 
 
         # Calculate the smoothed bins.
