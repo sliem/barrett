@@ -68,6 +68,7 @@ class oneD:
 
         fig.savefig(path)
 
+        plt.close(fig)
 
 class twoD:
     """ Calculate and plot the two dimensional profile likelihood.
@@ -161,3 +162,5 @@ class twoD:
         plt.ylabel('%s [%s]' % (self.yname, self.yunit))
 
         fig.savefig(path)
+
+        plt.close(fig)

@@ -78,6 +78,8 @@ class oneD:
 
         fig.savefig(path)
 
+        plt.close(fig)
+
 
 class twoD:
     """ Calculate and plot the two dimensional marginalised posteriors.
@@ -170,6 +172,8 @@ class twoD:
         plt.ylabel('%s [%s]' % (self.yname, self.yunit))
 
         fig.savefig(path)
+
+        plt.close(fig)
 
 
     def credibleregions(self, probs, smoothing=False):
