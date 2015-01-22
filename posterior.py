@@ -9,7 +9,7 @@ import barrett.util as util
 class oneD:
     """ Calculate and plot the one dimensional marginalised posteriors.
     """
-    def __init__(self, h5file, var, nbins=None):
+    def __init__(self, h5file, var, limits=None, nbins=None):
 
         self.h5file = h5file
         self.var = var
@@ -21,12 +21,17 @@ class oneD:
         
         self.min, self.max, self.mean = util.threenum(self.h5file, self.var)
 
+        if limits is None:
+            self.limits = (self.min, self.max)
+        else:
+            self.limits = limits 
+
         if nbins != None:
             self.nbins = nbins
         else:
             self.nbins = np.floor(self.n**1/2)
 
-        self.bin_edges  = np.linspace(self.min, self.max, num=self.nbins+1)
+        self.bin_edges  = np.linspace(self.limits[0], self.limits[1], num=self.nbins+1)
         self.bin_widths = np.diff(self.bin_edges)
         self.bins = None
 
@@ -79,7 +84,7 @@ class twoD:
     """ Calculate and plot the two dimensional marginalised posteriors.
     """
 
-    def __init__(self, h5file, xvar, yvar, nbins=None):
+    def __init__(self, h5file, xvar, yvar, xlimits=None, ylimits=None, nbins=None):
 
         self.h5file = h5file
         self.xvar = xvar
@@ -95,13 +100,23 @@ class twoD:
         self.xmin, self.xmax, self.xmean = util.threenum(self.h5file, self.xvar)
         self.ymin, self.ymax, self.ymean = util.threenum(self.h5file, self.yvar)
 
+        if xlimits is None:
+            self.xlimits = (self.xmin, self.xmax)
+        else:
+            self.xlimits = xlimits
+
+        if ylimits is None:
+            self.ylimits = (self.ymin, self.ymax)
+        else:
+            self.ylimits = ylimits
+
         if nbins != None:
             self.nbins = nbins
         else:
             self.nbins = np.floor(self.n**1/2)
 
-        self.xbin_edges  = np.linspace(self.xmin, self.xmax, num=self.nbins+1)
-        self.ybin_edges  = np.linspace(self.ymin, self.ymax, num=self.nbins+1)
+        self.xbin_edges  = np.linspace(self.xlimits[0], self.xlimits[1], num=self.nbins+1)
+        self.ybin_edges  = np.linspace(self.ylimits[0], self.ylimits[1], num=self.nbins+1)
 
         self.xbin_widths = np.diff(self.xbin_edges)
         self.ybin_widths = np.diff(self.ybin_edges)
