@@ -4,7 +4,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import scipy.ndimage as ndimage
 import h5py
-import util
+import barrett.util as util
 
 class oneD:
     """ Calculate and plot the one dimensional marginalised posteriors.
@@ -47,36 +47,32 @@ class oneD:
         self.bins = bins / bins.sum()
 
         # Calculate the smoothed bins.
-        self.bins_smoothed = ndimage.gaussian_filter(
-                    self.bins,
-                    sigma = self.bin_widths[0],
-                    order = 0)
+        # self.bins_smoothed = ndimage.gaussian_filter(
+        #            self.bins,
+        #            sigma = self.bin_widths[0],
+        #            order = 0)
 
-        self.bins_smoothed = self.bins_smoothed / self.bins_smoothed.sum()
+        #self.bins_smoothed = self.bins_smoothed / self.bins_smoothed.sum()
 
         f.close()
 
 
-    def plot(self, path, smoothed=False):
+    def plot(self, ax, smoothed=False):
 
         if smoothed:
             pdf = self.bins_smoothed
         else:
             pdf = self.bins
 
-        fig = plt.figure()
-
-        plt.hist(self.bin_edges[:-1],
+        ax.hist(self.bin_edges[:-1],
                  bins=self.bin_edges,
                  weights=pdf,
                  histtype='stepfilled',
                  alpha=0.5,
                  color='red')
 
-        plt.ylim(0, pdf.max()*1.1)
-        plt.xlabel('%s |%s]' % (self.name, self.unit))
-
-        fig.savefig(path)
+        ax.set_ylim(0, pdf.max()*1.1)
+        ax.set_xlabel('%s [%s]' % (self.name, self.unit))
 
 
 class twoD:
@@ -130,28 +126,26 @@ class twoD:
             bins = bins + ret[0]
 
         # Normalise so the sum of the bins is one, i.e. we have a pdf.
-        self.bins = bins / bins.sum()
+        self.bins = bins.T / bins.sum()
 
 
         # Calculate the smoothed bins.
-        self.bins_smoothed = ndimage.gaussian_filter(
-                    self.bins,
-                    sigma=(self.xbin_widths[0], self.ybin_widths[0]),
-                    order = 0)
+        #self.bins_smoothed = ndimage.gaussian_filter(
+        #            self.bins,
+        #            sigma=(self.xbin_widths[0], self.ybin_widths[0]),
+        #            order = 0)
 
-        self.bins_smoothed = self.bins_smoothed / self.bins_smoothed.sum()
+        #self.bins_smoothed = self.bins_smoothed / self.bins_smoothed.sum()
 
         f.close()
 
 
-    def plot(self, path, smoothing=False):
+    def plot(self, ax, smoothing=False):
 
         if smoothing:
             pdf = self.bins_smoothed
         else:
             pdf = self.bins
-
-        fig = plt.figure()
 
         xcenter = self.xbin_edges[:-1] + self.xbin_widths/2
         ycenter = self.ybin_edges[:-1] + self.ybin_widths/2
@@ -161,15 +155,13 @@ class twoD:
         cmap = matplotlib.cm.gist_heat_r
         levels = np.linspace(0.0, pdf.max(), 100)
        
-        cred_levels = self.credibleregions([0.95, 0.68], smoothing)
+        #cred_levels = self.credibleregions([0.95, 0.68], smoothing)
 
-        plt.contourf(X, Y, pdf, levels=levels, cmap=cmap)
-        plt.contour(X, Y, pdf, levels=cred_levels, colors='k')
+        ax.contourf(X, Y, pdf, levels=levels, cmap=cmap)
+        #ax.contour(X, Y, pdf, levels=cred_levels, colors='k')
 
-        plt.xlabel('%s [%s]' % (self.xname, self.xunit))
-        plt.ylabel('%s [%s]' % (self.yname, self.yunit))
-
-        fig.savefig(path)
+        ax.set_xlabel('%s [%s]' % (self.xname, self.xunit))
+        ax.set_ylabel('%s [%s]' % (self.yname, self.yunit))
 
 
     def credibleregions(self, probs, smoothing=False):

@@ -17,11 +17,11 @@ class Chain:
         f.close()
 
 
-    def create_column(name, unit):
+    def create_column(self, name, unit):
         h5 = h5py.File(self.h5file, 'r+')
 
-        dset = h5.create_dataset(h5,
-                                 shape=(0,),
+        dset = h5.create_dataset(name,
+                                 shape=(self.n,),
                                  maxshape=(None,),
                                  dtype=np.float64,
                                  chunks=(self.chunksize,),
@@ -36,7 +36,7 @@ class Chain:
         h5.close()
 
 
-    def apply(self, d_name, unit=None, func, *args):
+    def apply(self, d_name, unit, func, *args):
         h5 = h5py.File(self.h5file, 'r+')
 
         if d_name not in h5:
@@ -48,22 +48,21 @@ class Chain:
 
         vs = [h5[i] for i in args]
 
-        for i in range(0, self.n, self.s):
+        s = self.chunksize
+
+        for i in range(0, self.n, s):
             val = func(*[v[i:i+s] for v in vs])
             d[i:i+s] = val
 
         # Update the column units if necessary.
-        if unit != None:
-            oldunit = d.attrs.get('unit')
-            newunit = unit.encode('utf8')
-
-            if newunit != oldunit:
-                d.attrs.set('unit', newunit) 
+        unit = unit.encode('utf8')
+        if d.attrs.get('unit') != unit:
+            d.attrs['unit'] = unit 
 
         h5.close()
 
 
-    def transform_column(self, column, unit=None, func):
+    def transform_column(self, column, unit, func):
         self.apply(column, unit, func, column)
 
 
@@ -94,4 +93,13 @@ class Chain:
 
         h5.close()
         other_h5.close()
+
+
+    def log(self, column):
+        h5 = h5py.File(self.h5file, 'r+')
+
+        unit = 'log(%s)' % h5[column].attrs.get('unit').decode('utf8')
+        self.apply('log(%s)' % column, unit, np.log10, column)
+
+        h5.close()
 
