@@ -9,8 +9,19 @@ import matplotlib.pyplot as plt
 
 
 def main():
-	#logObservables('RD')
-	plot('RD')
+
+    dataset = 'RD'
+
+    #logObservables(dataset)
+
+    mass = ['log(m_{\chi})']
+    coefficients = ['D_1', 'D_2', 'D_3', 'D_4', 'D_5', 'D_6']
+    observables = ['log(<\sigma v>)', 'log(\Omega_{\chi}h^2)', 'log(\sigma_p^{SI})']
+
+    plot1D(dataset, mass + coefficients + observables, 'histograms')
+    plot_coefficients(dataset, coefficients)
+    plot_vs_mass(dataset, coefficients, 'mass_vs_coefficients')
+    plot_vs_mass(dataset, observables, 'mass_vs_observables')
 
 
 def logObservables(dataset):
@@ -19,16 +30,6 @@ def logObservables(dataset):
 
 	for v in ['<\sigma v>', '\Omega_{\chi}h^2', '\sigma_p^{SI}']:
 		d.log(v)
-
-
-def plot(dataset):
-
-	coefficients = ['D_1', 'D_2', 'D_3', 'D_4', 'D_5', 'D_6']
-	observables = ['log(<\sigma v>)', 'log(\Omega_{\chi}h^2)', 'log(\sigma_p^{SI})']
-
-	plot_coefficients(dataset, coefficients)	
-	plot_vs_mass(dataset, coefficients, 'mass_vs_coefficients')
-	plot_vs_mass(dataset, observables, 'mass_vs_observables')
 
 
 def plot_coefficients(dataset, vars, nbins=60):
@@ -58,7 +59,7 @@ def plot_coefficients(dataset, vars, nbins=60):
                 # No need to do the analysis twice. (a[i,j] == a[j,i].T)
                 ax.set_axis_off()
 
-            else if i == j:
+            elif i == j:
                 P = posterior.oneD(dataset+'.h5', x, nbins)
                 P.marginalise()
                 P.plot(ax)
@@ -106,6 +107,35 @@ def plot_vs_mass(dataset, vars, filename, nbins=60):
         P.plot(ax)
 
     fig.set_size_inches(8,n*6)
+    fig.savefig('%s/%s.png' % (dataset, filename), dpi=100)
+
+    plt.close(fig)
+
+
+def plot1D(dataset, vars, filename, nbins=60):
+
+    if not os.path.isdir(dataset):
+         os.mkdir(dataset)
+    
+    n = len(vars)
+
+    fig, axes = plt.subplots(nrows=n,
+                             ncols=1,
+                             sharex=False,
+                             sharey=False)
+
+    plt.subplots_adjust(wspace=0, hspace=1)
+
+    for i, x in enumerate(vars):
+        ax = axes[i]
+
+        P = posterior.oneD(dataset+'.h5', x, nbins)
+        P.marginalise()
+        P.plot(ax)
+
+        ax.set_yticklabels([])
+
+    fig.set_size_inches(4,n*2)
     fig.savefig('%s/%s.png' % (dataset, filename), dpi=100)
 
     plt.close(fig)
