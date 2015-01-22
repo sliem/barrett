@@ -52,23 +52,18 @@ class oneD:
         f.close()
 
 
-    def plot(self, path):
+    def plot(self, ax):
 
-        fig = plt.figure()
-
-        plt.hist(self.bin_edges[:-1],
+        ax.hist(self.bin_edges[:-1],
                  bins=self.bin_edges,
                  weights=self.proflike,
                  histtype='stepfilled',
                  alpha=0.5,
                  color='red')
 
-        plt.ylim(0, self.proflike.max()*1.1)
-        plt.xlabel('%s [%s]' % (self.name, self.unit))
+        ax.set_ylim(0, self.proflike.max()*1.1)
+        ax.set_xlabel('%s [%s]' % (self.name, self.unit))
 
-        fig.savefig(path)
-
-        plt.close(fig)
 
 class twoD:
     """ Calculate and plot the two dimensional profile likelihood.
@@ -136,14 +131,12 @@ class twoD:
         f.close()
 
 
-    def plot(self, path, smoothing=False):
+    def plot(self, ax, smoothing=False):
 
         if smoothing:
             pdf = self.bins_smoothed
         else:
             pdf = self.bins
-
-        fig = plt.figure()
 
         xcenter = self.xbin_edges[:-1] + self.xbin_widths/2
         ycenter = self.ybin_edges[:-1] + self.ybin_widths/2
@@ -155,12 +148,8 @@ class twoD:
        
         cred_levels = self.credibleregions([0.95, 0.68], smoothing)
 
-        plt.contourf(X, Y, pdf, levels=levels, cmap=cmap)
-        plt.contour(X, Y, pdf, levels=cred_levels, colors='k')
+        ax.contourf(X, Y, pdf, levels=levels, cmap=cmap)
+        ax.contour(X, Y, pdf, levels=cred_levels, colors='k')
 
-        plt.xlabel('%s [%s]' % (self.xname, self.xunit))
-        plt.ylabel('%s [%s]' % (self.yname, self.yunit))
-
-        fig.savefig(path)
-
-        plt.close(fig)
+        ax.set_xlabel('%s [%s]' % (self.xname, self.xunit))
+        ax.set_ylabel('%s [%s]' % (self.yname, self.yunit))
