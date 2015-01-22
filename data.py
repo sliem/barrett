@@ -10,10 +10,13 @@ class Chain:
         if not os.path.isfile(self.h5file):
             f = h5py.File(self.h5file, 'x')
             self.chunksize = chunksize
+            self.n = 0
+            
         else:
             f = h5py.File(self.h5file, 'r')
             self.chunksize = f['mult'].chunks[0]
-  
+            self.n = f['mult'].shape[0]
+ 
         f.close()
 
 
@@ -90,6 +93,8 @@ class Chain:
                 h5[k].resize(nrows+other_nrows, axis=0)
 
                 h5[k][nrows:] = other_h5[k][s:e]
+        
+        self.n = h5['mult'].shape[0]
 
         h5.close()
         other_h5.close()
