@@ -7,16 +7,31 @@ user can handle very large datasets.
 It is named after George Barrett (1752-1821) who took the supposed portrait of
 Rev. Thomas Bayes. Some [history](http://www.york.ac.uk/depts/maths/histstat/bayespic.htm).
 
-Specific technologies: MPI, HDF5, and Python (h5py, mpi4py, numpy, matplotlib). 
+Specific technologies: HDF5, and Python (h5py, numpy, matplotlib). 
 
-# TODO
 
-- Calculating the profile likelihood (1D and 2D)
-- Confidence intervals (1D and 2D)
-- Plotting.
-- Transform values, e.g. change units, log, exponentiate.
-- Calculate dependent variables, e.g. M_squark = mean of light squark masses.
-- Smoothing distributions.
-- Implement logic for estimating the appropiate binwidth.
-- Simple configuration language to control the package (cf. ini files for getplots).
-- Parallize!
+## Usage
+
+barrett is split into three main modules:
+
+ + barrett.data implements methods for modifying data (e.g. log, change units) or calculate 
+   depended variables (e.g. mean squark mass)
+
+ + barrett.posterior is for calculating and plot the one or two dimensional marginal 
+   posterior distribution.
+
+ + barrett.profilelikelihood is for calculating and plot the one or two dimensional profile 
+   likelihood.
+
+As for parallelisation; writing to the same hdf5 file is strongly discouraged. Reading the file 
+is however perfectly fine. So posterior/profilelikelihood module is perfectly parallelisable. 
+
+The code is not parallelised, instead I recommend using Python's multiprocessing module to 
+producing several plots asynchronously. In most system tested the analysis is CPU bound, your
+mileage may vary. 
+
+
+## Example
+
+Please check the example directory for plot.py for an, you guessed it, example.
+
