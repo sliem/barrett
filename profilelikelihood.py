@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import scipy.ndimage as ndimage
+import scipy.stats as stats
 import h5py
 import barrett.util as util
 
@@ -122,36 +123,23 @@ class twoD:
         l = f['-2lnL']
         s = x.chunks[0]
 
-        bins = np.zeros((self.nbins, self.nbins))
+        bins = 1e100*np.ones((self.nbins, self.nbins))
 
         for i in range(0, self.n, s):
             for j in range(i,s):
                 xbin_index = np.floor((x[j]-self.xmin)/self.xbin_widths[0])
                 ybin_index = np.floor((y[j]-self.ymin)/self.ybin_widths[0])
 
-                if -l[j] > bins[xbin_index, ybin_index]:
-                    bins[xbin_index, ybin_index] = -l[j]
+                if l[j] < bins[xbin_index, ybin_index]:
+                    bins[xbin_index, ybin_index] = l[j]
 
-        # Normalise so the sum of the bins is one, i.e. we have a pdf.
-        self.bins = bins / bins.sum()
-
-        # Calculate the smoothed bins.
-        # self.bins_smoothed = ndimage.gaussian_filter(
-        #            self.bins,
-        #            sigma=(self.xbin_widths[0], self.ybin_widths[0]),
-        #            order = 0)
-
-        #self.bins_smoothed = self.bins_smoothed / self.bins_smoothed.sum()
+        self.profchisq = bins - bins.min() 
+        self.proflike = np.exp(-self.profchisq/2)
 
         f.close()
 
 
     def plot(self, ax, smoothing=False):
-
-        if smoothing:
-            pdf = self.bins_smoothed
-        else:
-            pdf = self.bins
 
         xcenter = self.xbin_edges[:-1] + self.xbin_widths/2
         ycenter = self.ybin_edges[:-1] + self.ybin_widths/2
@@ -159,13 +147,20 @@ class twoD:
         X, Y = np.meshgrid(xcenter, ycenter)
         
         cmap = matplotlib.cm.gist_heat_r
-        levels = np.linspace(0.0, pdf.max(), 100)
-       
-        cred_levels = self.credibleregions([0.95, 0.68], smoothing)
+        levels = np.linspace(0, self.proflike.max(), 100)
 
-        ax.contourf(X, Y, pdf, levels=levels, cmap=cmap)
-        ax.contour(X, Y, pdf, levels=cred_levels, colors='k')
+        conf_levels = self.confidenceregions([0.95, 0.68])      
+ 
+        ax.contourf(X, Y, self.proflike, levels=levels, cmap=cmap)
+        ax.contour(X, Y, self.proflike, levels=conf_levels, colors='k')
 
         ax.set_xlabel('%s [%s]' % (self.xname, self.xunit))
         ax.set_ylabel('%s [%s]' % (self.yname, self.yunit))
+
+
+    def confidenceregions(self, probs):
+       
+        deltachi2 = stats.chi2.ppf(probs, 2)
+
+        return np.exp(-stats.chi2.ppf(probs, 2)/2)
 
