@@ -83,25 +83,19 @@ def convert_chain(
         dset.attrs.create('unit', u.encode('utf8'))
 
     for txtfile in txtfiles:
-        with open(txtfile, 'r') as f:
-            for chunk in filechunk(f, chunksize):
 
-                if chunk.shape == (): # single value, only happens for single column txt files
-                    nrows = 1
-                else:
-                    nrows = chunk.shape[0]
+        d = np.loadtxt(txtfile, dtype=np.float64)
 
-                for pos, h in enumerate(headers):
-                    dset = h5[h]
-                    old_nrows = dset.shape[0]
-                    dset.resize(old_nrows+nrows, axis=0)
+        if len(d.shape) == 1:
+            d = np.array([d])
 
-                    if chunk.shape == (): # single value
-                        dset[old_nrows] = chunk
-                    elif len(chunk.shape) == 1: # txt file contains only one column
-                        dset[old_nrows:] = chunk
-                    else:
-                        dset[old_nrows:] = chunk[:,pos]
+        dnrows = d.shape[0]
+
+        for pos, h in enumerate(headers):
+            x = h5[h]
+            xnrows = x.shape[0]
+            x.resize(dnrows+xnrows, axis=0)
+            x[xnrows:] = d[:,pos]
 
     h5.close()
 
