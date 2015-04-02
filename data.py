@@ -8,7 +8,7 @@ class Chain:
         self.h5file = h5file
 
         if not os.path.isfile(self.h5file):
-            f = h5py.File(self.h5file, 'x')
+            f = h5py.File(self.h5file, 'w')
             self.chunksize = chunksize
             self.n = 0
             
@@ -98,6 +98,14 @@ class Chain:
 
         h5.close()
         other_h5.close()
+
+
+    def get_unit(self, column):
+        h5 = h5py.File(self.h5file, 'r')
+        unit = h5[column].attrs.get('unit').decode('utf8')
+        h5.close()
+
+        return unit
 
 
     def log(self, column):
