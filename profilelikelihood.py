@@ -23,7 +23,7 @@ class oneD:
         self.min, self.max, self.mean = util.threenum(self.h5file, self.var)
 
         if limits is None:
-            self.limits = (self.min, self.max)
+            self.limits = (0.99*self.min, 1.01*self.max)
         else:
             self.limits = limits 
 
@@ -47,7 +47,7 @@ class oneD:
 
         for i in range(0, self.n, s):
             for j in range(i, s):
-                bin_index = np.floor((x[j]-self.min)/self.bin_widths[0])
+                bin_index = np.floor((x[j]-self.limits[0])/self.bin_widths[0])
 
                 if l[j] < bins[bin_index]:
                     bins[bin_index] = l[j]
@@ -75,7 +75,7 @@ class twoD:
     """ Calculate and plot the two dimensional profile likelihood.
     """
 
-    def __init__(self, h5file, xvar, yvar, xlimits=None, ylimits=None, nbins=None):
+    def __init__(self, h5file, xvar, yvar, xlimits=None, ylimits=None, zero=False, nbins=None):
 
         self.h5file = h5file
         self.xvar = xvar
@@ -92,12 +92,20 @@ class twoD:
         self.ymin, self.ymax, self.ymean = util.threenum(self.h5file, self.yvar)
 
         if xlimits is None:
-            self.xlimits = (self.xmin, self.xmax)
+            self.xlimits = (0.99*self.xmin, 1.01*self.xmax)
+
+            if zero:
+                self.xlimits = (0.0, self.xlimits[1])
+
         else:
             self.xlimits = xlimits
 
         if ylimits is None:
-            self.ylimits = (self.ymin, self.ymax)
+            self.ylimits = (0.99*self.ymin, 1.01*self.ymax)
+
+            if zero:
+                self.ylimits = (0.0, self.ylimits[1])
+
         else:
             self.ylimits = ylimits
 
@@ -127,11 +135,14 @@ class twoD:
 
         for i in range(0, self.n, s):
             for j in range(i,s):
-                xbin_index = np.floor((x[j]-self.xmin)/self.xbin_widths[0])
-                ybin_index = np.floor((y[j]-self.ymin)/self.ybin_widths[0])
+                xbin_index = np.floor((x[j]-self.xlimits[0])/self.xbin_widths[0])
+                ybin_index = np.floor((y[j]-self.ylimits[0])/self.ybin_widths[0])
 
-                if l[j] < bins[xbin_index, ybin_index]:
-                    bins[xbin_index, ybin_index] = l[j]
+                if xbin_index > bins.shape[0] or ybin_index > bins.shape[1]:
+                    pass
+
+                if l[j] < bins[ybin_index, xbin_index]:
+                    bins[ybin_index, xbin_index] = l[j]
 
         self.profchisq = bins - bins.min() 
         self.proflike = np.exp(-self.profchisq/2)
@@ -147,7 +158,7 @@ class twoD:
         X, Y = np.meshgrid(xcenter, ycenter)
         
         cmap = matplotlib.cm.gist_heat_r
-        levels = np.linspace(0, self.proflike.max(), 100)
+        levels = np.linspace(0, self.proflike.max(), 10)
 
         conf_levels = self.confidenceregions([0.95, 0.68])      
  
