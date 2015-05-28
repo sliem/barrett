@@ -18,13 +18,13 @@ class oneD:
             self.n = f[self.var].shape[0]
             self.name = f[self.var].name
             self.unit = f[self.var].attrs['unit'].decode('utf8')
-        
+
         self.min, self.max, self.mean = util.threenum(self.h5file, self.var)
 
         if limits is None:
-            self.limits = (self.min, self.max)
+            self.limits = (0.99*self.min, 1.01*self.max)
         else:
-            self.limits = limits 
+            self.limits = limits
 
         if nbins != None:
             self.nbins = nbins
@@ -46,7 +46,8 @@ class oneD:
         bins = np.zeros(self.nbins)
 
         for i in range(0, self.n, s):
-            ret = np.histogram(x[i:i+s], weights=w[i:i+s], bins=self.bin_edges)
+            aN = ~np.logical_or(np.isnan(x[i:i+s]), np.isinf(x[i:i+s]))
+            ret = np.histogram(x[i:i+s][aN], weights=w[i:i+s][aN], bins=self.bin_edges)
             bins = bins + ret[0]
 
         self.bins = bins / bins.sum()
@@ -96,17 +97,17 @@ class twoD:
             self.xunit = f[self.xvar].attrs['unit'].decode('utf8')
             self.yname = f[self.yvar].name
             self.yunit = f[self.yvar].attrs['unit'].decode('utf8')
-        
+
         self.xmin, self.xmax, self.xmean = util.threenum(self.h5file, self.xvar)
         self.ymin, self.ymax, self.ymean = util.threenum(self.h5file, self.yvar)
 
         if xlimits is None:
-            self.xlimits = (self.xmin, self.xmax)
+            self.xlimits = (0.99*self.xmin, 1.01*self.xmax)
         else:
             self.xlimits = xlimits
 
         if ylimits is None:
-            self.ylimits = (self.ymin, self.ymax)
+            self.ylimits = (0.99*self.ymin, 1.01*self.ymax)
         else:
             self.ylimits = ylimits
 
@@ -135,7 +136,7 @@ class twoD:
         bins = np.zeros((self.nbins, self.nbins))
 
         for i in range(0, self.n, s):
-            ret = np.histogram2d(x[i:i+s], y[i:i+s], weights=w[i:i+s], 
+            ret = np.histogram2d(x[i:i+s], y[i:i+s], weights=w[i:i+s],
                     bins=(self.xbin_edges, self.ybin_edges))
 
             bins = bins + ret[0]
@@ -145,12 +146,12 @@ class twoD:
 
 
         # Calculate the smoothed bins.
-        #self.bins_smoothed = ndimage.gaussian_filter(
-        #            self.bins,
-        #            sigma=(self.xbin_widths[0], self.ybin_widths[0]),
-        #            order = 0)
+        self.bins_smoothed = ndimage.gaussian_filter(
+                    self.bins,
+                    sigma=(2*self.xbin_widths[0], 2*self.ybin_widths[0]),
+                    order = 0)
 
-        #self.bins_smoothed = self.bins_smoothed / self.bins_smoothed.sum()
+        self.bins_smoothed = self.bins_smoothed / self.bins_smoothed.sum()
 
         f.close()
 
@@ -166,13 +167,17 @@ class twoD:
         ycenter = self.ybin_edges[:-1] + self.ybin_widths/2
 
         X, Y = np.meshgrid(xcenter, ycenter)
-        
-        cmap = matplotlib.cm.gist_heat_r
-        levels = np.linspace(0.0, pdf.max(), 100)
-       
-        #cred_levels = self.credibleregions([0.95, 0.68], smoothing)
 
+        cmap = matplotlib.cm.gist_heat_r
+
+        levels = np.linspace(0.0, pdf.max(), 20)
+        levels = levels[1:]
+
+        #smooth_pdf = ndimage.zoom(pdf,100, order=5)
         ax.contourf(X, Y, pdf, levels=levels, cmap=cmap)
+        #ax.contourf(smooth_pdf, levels=levels, cmap=cmap)
+
+        #cred_levels = self.credibleregions([0.95, 0.68], smoothing)
         #ax.contour(X, Y, pdf, levels=cred_levels, colors='k')
 
         ax.set_xlabel('%s [%s]' % (self.xname, self.xunit))
@@ -182,8 +187,8 @@ class twoD:
     def credibleregions(self, probs, smoothing=False):
         """ Calculates the one and two sigma credible regions.
 
-        The algorithm is extremely simple: 
-        
+        The algorithm is extremely simple:
+
         1. start with z = 0
         2. calculate s = sum(pdf(x)) where pdf(x) >= z
         3. if s >= p, return z
@@ -201,7 +206,7 @@ class twoD:
 
         z = 0.0
         step = pdf.max()*1e-4
-        
+
         for p in sorted(probs):
             while True:
                 s = np.ma.masked_where(pdf > z, pdf).sum()
@@ -212,4 +217,3 @@ class twoD:
 
                 z += step
         return levels
-
