@@ -19,13 +19,13 @@ class oneD:
             self.n = f[self.var].shape[0]
             self.name = f[self.var].name
             self.unit = f[self.var].attrs['unit'].decode('utf8')
-        
+
         self.min, self.max, self.mean = util.threenum(self.h5file, self.var)
 
         if limits is None:
             self.limits = (0.99*self.min, 1.01*self.max)
         else:
-            self.limits = limits 
+            self.limits = limits
 
         if nbins != None:
             self.nbins = nbins
@@ -87,7 +87,7 @@ class twoD:
             self.xunit = f[self.xvar].attrs['unit'].decode('utf8')
             self.yname = f[self.yvar].name
             self.yunit = f[self.yvar].attrs['unit'].decode('utf8')
-        
+
         self.xmin, self.xmax, self.xmean = util.threenum(self.h5file, self.xvar)
         self.ymin, self.ymax, self.ymean = util.threenum(self.h5file, self.yvar)
 
@@ -144,24 +144,27 @@ class twoD:
                 if l[j] < bins[ybin_index, xbin_index]:
                     bins[ybin_index, xbin_index] = l[j]
 
-        self.profchisq = bins - bins.min() 
+        self.profchisq = bins - bins.min()
         self.proflike = np.exp(-self.profchisq/2)
 
         f.close()
 
 
-    def plot(self, ax, smoothing=False):
+    def plot(self, ax, levels=None, smoothing=False):
 
         xcenter = self.xbin_edges[:-1] + self.xbin_widths/2
         ycenter = self.ybin_edges[:-1] + self.ybin_widths/2
 
         X, Y = np.meshgrid(xcenter, ycenter)
-        
+
         cmap = matplotlib.cm.gist_heat_r
         levels = np.linspace(0, self.proflike.max(), 10)
 
-        conf_levels = self.confidenceregions([0.95, 0.68])      
- 
+        if levels == None:
+            levels = [0.95, 0.68]
+
+        conf_levels = self.confidenceregions(levels)
+
         ax.contourf(X, Y, self.proflike, levels=levels, cmap=cmap)
         ax.contour(X, Y, self.proflike, levels=conf_levels, colors='k')
 
@@ -170,8 +173,7 @@ class twoD:
 
 
     def confidenceregions(self, probs):
-       
+
         deltachi2 = stats.chi2.ppf(probs, 2)
 
         return np.exp(-stats.chi2.ppf(probs, 2)/2)
-

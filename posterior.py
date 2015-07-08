@@ -156,7 +156,7 @@ class twoD:
         f.close()
 
 
-    def plot(self, ax, smoothing=False):
+    def plot(self, ax, levels=None, smoothing=False):
 
         if smoothing:
             pdf = self.bins_smoothed
@@ -170,8 +170,9 @@ class twoD:
 
         cmap = matplotlib.cm.gist_heat_r
 
-        levels = np.linspace(0.0, pdf.max(), 20)
-        levels = levels[1:]
+        if levels = None:
+            levels = np.linspace(0.0, pdf.max(), 20)
+            levels = levels[1:]
 
         #smooth_pdf = ndimage.zoom(pdf,100, order=5)
         ax.contourf(X, Y, pdf, levels=levels, cmap=cmap)
