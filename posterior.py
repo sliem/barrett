@@ -184,16 +184,7 @@ class twoD:
 
 
     def credibleregions(self, probs, smoothing=False):
-        """ Calculates the one and two sigma credible regions.
-
-        The algorithm is extremely simple:
-
-        1. start with z = 0
-        2. calculate s = sum(pdf(x)) where pdf(x) >= z
-        3. if s >= p, return z
-        4. else z += step and goto 2.
-
-        z defines the regions in conjunction with contour/contourf
+        """ Calculates the credible regions.
         """
 
         if smoothing:
@@ -201,18 +192,13 @@ class twoD:
         else:
             pdf = self.bins
 
-        levels = []
+        step = 0.0001
 
-        z = 0.0
-        step = pdf.max()*1e-4
+        probs = np.array(probs)
+        levels = np.zeros(probs.size)
 
-        for p in sorted(probs):
-            while True:
-                s = np.ma.masked_where(pdf > z, pdf).sum()
+        for i, p in enumerate(probs):
+            while np.ma.masked_where(pdf < levels[i], pdf).sum() > p:
+                levels[i] += step
 
-                if s > p:
-                    levels.append(z)
-                    break
-
-                z += step
         return levels
