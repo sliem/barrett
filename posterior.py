@@ -53,12 +53,12 @@ class oneD:
         self.bins = bins / bins.sum()
 
         # Calculate the smoothed bins.
-        # self.bins_smoothed = ndimage.gaussian_filter(
-        #            self.bins,
-        #            sigma = self.bin_widths[0],
-        #            order = 0)
+        self.bins_smoothed = ndimage.gaussian_filter(
+                    self.bins,
+                    sigma = self.bin_widths[0],
+                    order = 0)
 
-        #self.bins_smoothed = self.bins_smoothed / self.bins_smoothed.sum()
+        self.bins_smoothed = self.bins_smoothed / self.bins_smoothed.sum()
 
         f.close()
 
@@ -148,7 +148,7 @@ class twoD:
         # Calculate the smoothed bins.
         self.bins_smoothed = ndimage.gaussian_filter(
                     self.bins,
-                    sigma=(2*self.xbin_widths[0], 2*self.ybin_widths[0]),
+                    sigma=(self.xbin_widths[0], self.ybin_widths[0]),
                     order = 0)
 
         self.bins_smoothed = self.bins_smoothed / self.bins_smoothed.sum()
@@ -174,9 +174,7 @@ class twoD:
             levels = np.linspace(0.0, pdf.max(), 20)
             levels = levels[1:]
 
-        #smooth_pdf = ndimage.zoom(pdf,100, order=5)
         ax.contourf(X, Y, pdf, levels=levels, cmap=cmap)
-        #ax.contourf(smooth_pdf, levels=levels, cmap=cmap)
 
         #cred_levels = self.credibleregions([0.95, 0.68], smoothing)
         #ax.contour(X, Y, pdf, levels=cred_levels, colors='k')
