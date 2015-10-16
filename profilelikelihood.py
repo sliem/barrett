@@ -47,6 +47,10 @@ class oneD:
 
         for i in range(0, self.n, s):
             for j in range(i, s):
+
+                if x[j] <= self.limits[0] or x[j] >= self.limits[1]:
+                    continue
+
                 bin_index = np.floor((x[j]-self.limits[0])/self.bin_widths[0])
 
                 if l[j] < bins[bin_index]:
@@ -65,7 +69,7 @@ class oneD:
                  weights=self.proflike,
                  histtype='stepfilled',
                  alpha=0.5,
-                 color='red')
+                 color='green')
 
         ax.set_ylim(0, self.proflike.max()*1.1)
         ax.set_xlabel('%s [%s]' % (self.name, self.unit))
