@@ -170,7 +170,7 @@ class twoD:
 
         cmap = matplotlib.cm.gist_heat_r
 
-        if levels = None:
+        if levels == None:
             levels = np.linspace(0.0, pdf.max(), 20)
             levels = levels[1:]
 
