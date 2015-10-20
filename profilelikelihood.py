@@ -46,15 +46,19 @@ class oneD:
         bins = 1e100*np.ones(self.nbins)
 
         for i in range(0, self.n, s):
-            for j in range(i, s):
+            lc = l[i:i+s]
+            xc = x[i:i+s]
 
-                if x[j] <= self.limits[0] or x[j] >= self.limits[1]:
-                    continue
+            # filter out outliers
+            not_outliers = np.all([xc >= self.limits[0], xc <= self.limits[1]], axis=0)
+            lc = lc[not_outliers]
+            xc = xc[not_outliers]
 
-                bin_index = np.floor((x[j]-self.limits[0])/self.bin_widths[0])
+            bin_index = np.digitize(xc, self.bin_edges) - 1
 
-                if l[j] < bins[bin_index]:
-                    bins[bin_index] = l[j]
+            for j in range(lc.shape[0]):
+                if lc[j] < bins[bin_index[j]]:
+                    bins[bin_index[j]] = lc[j]
 
         self.profchisq = bins - bins.min()
         self.proflike = np.exp(-bins/2)
