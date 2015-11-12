@@ -50,7 +50,7 @@ class oneD:
             ret = np.histogram(x[i:i+s][aN], weights=w[i:i+s][aN], bins=self.bin_edges)
             bins = bins + ret[0]
 
-        self.bins = bins / bins.sum()
+        self.bins = bins
 
         # Calculate the smoothed bins.
         self.bins_smoothed = ndimage.gaussian_filter(
@@ -58,7 +58,7 @@ class oneD:
                     sigma = self.bin_widths[0],
                     order = 0)
 
-        self.bins_smoothed = self.bins_smoothed / self.bins_smoothed.sum()
+        self.bins_smoothed = self.bins_smoothed
 
         f.close()
 
@@ -142,7 +142,7 @@ class twoD:
             bins = bins + ret[0]
 
         # Normalise so the sum of the bins is one, i.e. we have a pdf.
-        self.bins = bins.T / bins.sum()
+        self.bins = bins.T
 
 
         # Calculate the smoothed bins.
@@ -150,8 +150,6 @@ class twoD:
                     self.bins,
                     sigma=(self.xbin_widths[0], self.ybin_widths[0]),
                     order = 0)
-
-        self.bins_smoothed = self.bins_smoothed / self.bins_smoothed.sum()
 
         f.close()
 
