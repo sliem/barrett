@@ -154,7 +154,7 @@ class twoD:
         f.close()
 
 
-    def plot(self, ax, levels=None, smoothing=False):
+    def plot(self, ax, levels=[0.95, 0.68], smoothing=False):
 
         if smoothing:
             pdf = self.bins_smoothed
@@ -168,14 +168,9 @@ class twoD:
 
         cmap = matplotlib.cm.gist_heat_r
 
-        if levels == None:
-            levels = np.linspace(0.0, pdf.max(), 20)
-            levels = levels[1:]
+        levels = list(self.credibleregions(crlevels, smoothing=smoothing)) + [pdf.max()]
 
         ax.contourf(X, Y, pdf, levels=levels, cmap=cmap)
-
-        #cred_levels = self.credibleregions([0.95, 0.68], smoothing)
-        #ax.contour(X, Y, pdf, levels=cred_levels, colors='k')
 
         ax.set_xlabel('%s [%s]' % (self.xname, self.xunit))
         ax.set_ylabel('%s [%s]' % (self.yname, self.yunit))
