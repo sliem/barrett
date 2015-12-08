@@ -147,7 +147,7 @@ class twoD:
                 ybin_index = np.floor((y[j]-self.ylimits[0])/self.ybin_widths[0])
 
                 if xbin_index > bins.shape[0] or ybin_index > bins.shape[1]:
-                    pass
+                    continue
 
                 if l[j] < bins[ybin_index, xbin_index]:
                     bins[ybin_index, xbin_index] = l[j]
