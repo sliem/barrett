@@ -11,12 +11,12 @@ class Chain:
             f = h5py.File(self.h5file, 'w')
             self.chunksize = chunksize
             self.n = 0
-            
+
         else:
             f = h5py.File(self.h5file, 'r')
             self.chunksize = f['mult'].chunks[0]
             self.n = f['mult'].shape[0]
- 
+
         f.close()
 
 
@@ -60,7 +60,7 @@ class Chain:
         # Update the column units if necessary.
         unit = unit.encode('utf8')
         if d.attrs.get('unit') != unit:
-            d.attrs['unit'] = unit 
+            d.attrs['unit'] = unit
 
         h5.close()
 
@@ -84,7 +84,7 @@ class Chain:
         starts = list(range(0, other_n, self.chunksize))
         ends   = starts[1:] + [other_n]
 
-        for s, e in zip(starts, ends):   
+        for s, e in zip(starts, ends):
             for k in other_h5.keys():
                 other_nrows = e-s
 
@@ -93,11 +93,39 @@ class Chain:
                 h5[k].resize(nrows+other_nrows, axis=0)
 
                 h5[k][nrows:] = other_h5[k][s:e]
-        
+
         self.n = h5['mult'].shape[0]
 
         h5.close()
         other_h5.close()
+
+
+    def bestfit(self, columns=None):
+
+        h5 = h5py.File(self.h5file, 'r')
+        chi2 = h5['-2lnL']
+        s = self.chunksize
+
+        minimum, index = (chi2[0], 0)
+        for i in range(0, self.n, s):
+            chunk_index = np.argmin(chi2)
+            chunk_minimum = chi2[chunk_index]
+
+            if chunk_minimum < minimum:
+                minimum = chunk_minimum
+                index = chunk_index
+
+        if columns == None:
+            p = {}
+            for k in h5.keys():
+                p[k] = h5[k][index]
+        else:
+            p = []
+            for c in columns:
+                p.append(h5[c][index])
+            p = np.array(p)
+
+        return p
 
 
     def get_unit(self, column):
@@ -115,4 +143,3 @@ class Chain:
         self.apply('log(%s)' % column, unit, np.log10, column)
 
         h5.close()
-
