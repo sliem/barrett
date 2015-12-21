@@ -61,7 +61,7 @@ class oneD:
                     bins[bin_index[j]] = lc[j]
 
         self.profchisq = bins - bins.min()
-        self.proflike = np.exp(-bins/2)
+        self.proflike = np.exp(-self.profchisq/2)
 
         f.close()
 
@@ -143,11 +143,14 @@ class twoD:
 
         for i in range(0, self.n, s):
             for j in range(i,s):
+                if x[j] < self.xlimits[0] or x[j] > self.xlimits[1]:
+                    continue
+
+                if y[j] < self.ylimits[0] or y[j] > self.ylimits[1]:
+                    continue
+
                 xbin_index = np.floor((x[j]-self.xlimits[0])/self.xbin_widths[0])
                 ybin_index = np.floor((y[j]-self.ylimits[0])/self.ybin_widths[0])
-
-                if xbin_index > bins.shape[0] or ybin_index > bins.shape[1]:
-                    continue
 
                 if l[j] < bins[ybin_index, xbin_index]:
                     bins[ybin_index, xbin_index] = l[j]
@@ -158,7 +161,7 @@ class twoD:
         f.close()
 
 
-    def plot(self, ax, levels=None, smoothing=False):
+    def plot(self, ax, levels=[0.95, 0.68], smoothing=False):
 
         xcenter = self.xbin_edges[:-1] + self.xbin_widths/2
         ycenter = self.ybin_edges[:-1] + self.ybin_widths/2
@@ -166,15 +169,15 @@ class twoD:
         X, Y = np.meshgrid(xcenter, ycenter)
 
         cmap = matplotlib.cm.gist_heat_r
-        levels = np.linspace(0, self.proflike.max(), 10)
+        #levels = np.linspace(0, self.proflike.max(), 10)
 
         if levels == None:
-            levels = [0.95, 0.68]
+            levels = np.linspace(0, self.proflike.max(), 10)[1:]
+        else:
+            levels = list(self.confidenceregions(levels)) + [self.proflike.max()]
 
-        conf_levels = self.confidenceregions(levels)
-
+        #ax.contourf(X, Y, self.proflike, levels=levels, cmap=cmap)
         ax.contourf(X, Y, self.proflike, levels=levels, cmap=cmap)
-        ax.contour(X, Y, self.proflike, levels=conf_levels, colors='k')
 
         ax.set_xlabel('%s [%s]' % (self.xname, self.xunit))
         ax.set_ylabel('%s [%s]' % (self.yname, self.yunit))
@@ -184,4 +187,4 @@ class twoD:
 
         deltachi2 = stats.chi2.ppf(probs, 2)
 
-        return np.exp(-stats.chi2.ppf(probs, 2)/2)
+        return np.exp(-deltachi2/2)
