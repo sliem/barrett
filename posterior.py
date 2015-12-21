@@ -168,7 +168,10 @@ class twoD:
 
         cmap = matplotlib.cm.gist_heat_r
 
-        levels = list(self.credibleregions(levels, smoothing=smoothing)) + [pdf.max()]
+        if levels == None:
+            levels = np.linspace(0, pdf.max(), 10)[1:]
+        else:
+            levels = list(self.credibleregions(levels, smoothing=smoothing)) + [pdf.max()]
 
         ax.contourf(X, Y, pdf, levels=levels, cmap=cmap)
 
