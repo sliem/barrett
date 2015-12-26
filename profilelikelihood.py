@@ -54,7 +54,7 @@ class oneD:
             lc = lc[not_outliers]
             xc = xc[not_outliers]
 
-            bin_index = np.digitize(xc, self.bin_edges) - 1
+            bin_index = np.digitize(xc, self.bin_edges, right=True) - 1
 
             for j in range(lc.shape[0]):
                 if lc[j] < bins[bin_index[j]]:
