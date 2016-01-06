@@ -173,7 +173,8 @@ class twoD:
         else:
             levels = list(self.credibleregions(levels, smoothing=smoothing)) + [pdf.max()]
 
-        ax.contourf(X, Y, pdf, levels=levels, cmap=cmap)
+        colors = [cmap(i) for i in np.linspace(0.2,0.8,len(levels))][1:]
+        ax.contourf(X, Y, pdf, levels=levels, colors=colors)
 
         ax.set_xlabel('%s [%s]' % (self.xname, self.xunit))
         ax.set_ylabel('%s [%s]' % (self.yname, self.yunit))

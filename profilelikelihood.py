@@ -54,8 +54,7 @@ class oneD:
             lc = lc[not_outliers]
             xc = xc[not_outliers]
 
-            bin_index = np.digitize(xc, self.bin_edges) - 1
-
+            bin_index = np.digitize(xc, self.bin_edges, right=True) - 1
             for j in range(lc.shape[0]):
                 if lc[j] < bins[bin_index[j]]:
                     bins[bin_index[j]] = lc[j]
@@ -169,15 +168,14 @@ class twoD:
         X, Y = np.meshgrid(xcenter, ycenter)
 
         cmap = matplotlib.cm.gist_heat_r
-        #levels = np.linspace(0, self.proflike.max(), 10)
 
         if levels == None:
             levels = np.linspace(0, self.proflike.max(), 10)[1:]
         else:
             levels = list(self.confidenceregions(levels)) + [self.proflike.max()]
 
-        #ax.contourf(X, Y, self.proflike, levels=levels, cmap=cmap)
-        ax.contourf(X, Y, self.proflike, levels=levels, cmap=cmap)
+        colors = [cmap(i) for i in np.linspace(0.2,0.8,len(levels))][1:]
+        ax.contourf(X, Y, self.proflike, levels=levels, colors=colors)
 
         ax.set_xlabel('%s [%s]' % (self.xname, self.xunit))
         ax.set_ylabel('%s [%s]' % (self.yname, self.yunit))
