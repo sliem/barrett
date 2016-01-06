@@ -55,6 +55,7 @@ class oneD:
             xc = xc[not_outliers]
 
             bin_index = np.digitize(xc, self.bin_edges, right=True) - 1
+
             for j in range(lc.shape[0]):
                 if lc[j] < bins[bin_index[j]]:
                     bins[bin_index[j]] = lc[j]
