@@ -28,8 +28,11 @@ class oneD:
         chisq = np.zeros(self.nbins) + 1e100
         s = self.chunksize
         for i in range(0, self.n, s):
-            r = stats.binned_statistic(h5[self.var][i:i+s], h5['-2lnL'][i:i+s], np.nanmin,
-                                       bins=self.nbins, range=self.limits)
+            r = stats.binned_statistic(h5[self.var][i:i+s],
+                                       h5['-2lnL'][i:i+s],
+                                       np.nanmin,
+                                       bins=self.nbins,
+                                       range=self.limits)
             chisq = np.fmin(chisq, r.statistic)
 
         self.proflike = np.exp(-(chisq - chisq.min())/2)
@@ -82,10 +85,11 @@ class twoD:
         s = self.chunksize
         for i in range(0, self.n, s):
             r = stats.binned_statistic_2d(h5[self.xvar][i:i+s],
-                                       h5[self.yvar][i:i+s],
-                                       h5['-2lnL'][i:i+s],
-                                       np.nanmin, bins=self.nbins,
-                                       range=[self.xlimits, self.ylimits])
+                                          h5[self.yvar][i:i+s],
+                                          h5['-2lnL'][i:i+s],
+                                          np.nanmin,
+                                          bins=self.nbins,
+                                          range=[self.xlimits, self.ylimits])
             chisq = np.fmin(chisq, r.statistic)
         chisq = chisq.T
         self.proflike = np.exp(-(chisq - chisq.min())/2)
