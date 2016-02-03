@@ -9,7 +9,7 @@ import barrett.util as util
 class oneD:
     """ Calculate and plot the one dimensional profile likelihood.
     """
-    def __init__(self, h5file, var, limits=None, nbins=None):
+    def __init__(self, h5file, var, limits=None, bins=None):
 
         self.h5file = h5file
         self.var = var
@@ -22,7 +22,8 @@ class oneD:
         self.chunksize = h5[self.var].chunks[0]
 
         self.min, self.max, self.mean = util.threenum(self.h5file, self.var)
-        self.nbins = np.floor(self.n**1/2) if nbins is None else nbins
+        self.bins = np.floor(self.n**1/2) if bins is None else bins
+        self.nbins = self.bins if np.isscalar(self.bins) else self.bins[0]
         self.limits = (self.min, self.max) if limits is None else limits
 
         chisq = np.zeros(self.nbins) + 1e100
@@ -31,7 +32,7 @@ class oneD:
             r = stats.binned_statistic(h5[self.var][i:i+s],
                                        h5['-2lnL'][i:i+s],
                                        np.nanmin,
-                                       bins=self.nbins,
+                                       bins=self.bins,
                                        range=self.limits)
             chisq = np.fmin(chisq, r.statistic)
 
@@ -59,7 +60,7 @@ class twoD:
     """ Calculate and plot the two dimensional profile likelihood.
     """
 
-    def __init__(self, h5file, xvar, yvar, xlimits=None, ylimits=None, nbins=None):
+    def __init__(self, h5file, xvar, yvar, xlimits=None, ylimits=None, xbins=None, ybins=None):
 
         self.h5file = h5file
         self.xvar = xvar
@@ -77,18 +78,21 @@ class twoD:
         self.xmin, self.xmax, self.xmean = util.threenum(self.h5file, self.xvar)
         self.ymin, self.ymax, self.ymean = util.threenum(self.h5file, self.yvar)
 
-        self.nbins = np.floor(self.n**1/2) if nbins is None else nbins
+        self.xbins = np.floor(self.n**1/2) if xbins is None else xbins
+        self.ybins = np.floor(self.n**1/2) if ybins is None else ybins
+        self.xnbins = self.xbins if np.isscalar(self.xbins) else self.xbins.shape[0] -1
+        self.ynbins = self.ybins if np.isscalar(self.ybins) else self.ybins.shape[0] -1
         self.xlimits = (self.xmin, self.xmax) if xlimits is None else xlimits
         self.ylimits = (self.ymin, self.ymax) if ylimits is None else ylimits
 
-        chisq = np.zeros((self.nbins, self.nbins)) + 1e100
+        chisq = np.zeros((self.xnbins, self.ynbins)) + 1e100
         s = self.chunksize
         for i in range(0, self.n, s):
             r = stats.binned_statistic_2d(h5[self.xvar][i:i+s],
                                           h5[self.yvar][i:i+s],
                                           h5['-2lnL'][i:i+s],
                                           np.nanmin,
-                                          bins=self.nbins,
+                                          bins=[self.xbins, self.ybins],
                                           range=[self.xlimits, self.ylimits])
             chisq = np.fmin(chisq, r.statistic)
         chisq = chisq.T

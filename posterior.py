@@ -9,7 +9,7 @@ import barrett.util as util
 class oneD:
     """ Calculate and plot the one dimensional marginalised posteriors.
     """
-    def __init__(self, h5file, var, limits=None, nbins=None):
+    def __init__(self, h5file, var, limits=None, bins=None):
 
         self.h5file = h5file
         self.var = var
@@ -22,18 +22,19 @@ class oneD:
         self.chunksize = h5[self.var].chunks[0]
 
         self.min, self.max, self.mean = util.threenum(self.h5file, self.var)
-        self.nbins = np.floor(self.n**1/2) if nbins is None else nbins
+        self.bins = np.floor(self.n**1/2) if bins is None else bins
+        self.nbins = self.bins if np.isscalar(self.bins) else self.bins.shape[0]
         self.limits = (self.min, self.max) if limits is None else limits
 
-        self.bins = np.zeros(self.nbins)
+        self.pdf = np.zeros(self.nbins)
         s = self.chunksize
         for i in range(0, self.n, s):
             r = stats.binned_statistic(h5[self.var][i:i+s],
                                        h5['mult'][i:i+s],
                                        'sum',
-                                       bins=self.nbins,
+                                       bins=self.bins,
                                        range=self.limits)
-            self.bins += r.statistic
+            self.pdf += r.statistic
 
         self.bin_edges  = r.bin_edges
 
@@ -44,12 +45,12 @@ class oneD:
 
         ax.hist(self.bin_edges[:-1],
                  bins=self.bin_edges,
-                 weights=self.bins,
+                 weights=self.pdf,
                  histtype='stepfilled',
                  alpha=0.5,
                  color='red')
 
-        ax.set_ylim(0, self.bins.max()*1.1)
+        ax.set_ylim(0, self.pdf.max()*1.1)
         ax.set_xlabel('%s [%s]' % (self.name, self.unit))
 
 
@@ -57,7 +58,7 @@ class twoD:
     """ Calculate and plot the two dimensional marginalised posteriors.
     """
 
-    def __init__(self, h5file, xvar, yvar, xlimits=None, ylimits=None, nbins=None):
+    def __init__(self, h5file, xvar, yvar, xlimits=None, ylimits=None, xbins=None, ybins=None):
 
         self.h5file = h5file
         self.xvar = xvar
@@ -75,21 +76,24 @@ class twoD:
         self.xmin, self.xmax, self.xmean = util.threenum(self.h5file, self.xvar)
         self.ymin, self.ymax, self.ymean = util.threenum(self.h5file, self.yvar)
 
-        self.nbins = np.floor(self.n**1/2) if nbins is None else nbins
+        self.xbins = np.floor(self.n**1/2) if xbins is None else xbins
+        self.xnbins = self.xbins if np.isscalar(self.xbins) else self.xbins.shape[0] - 1
+        self.ybins = np.floor(self.n**1/2) if ybins is None else ybins
+        self.ynbins = self.ybins if np.isscalar(self.ybins) else self.ybins.shape[0] - 1
         self.xlimits = (self.xmin, self.xmax) if xlimits is None else xlimits
         self.ylimits = (self.ymin, self.ymax) if ylimits is None else ylimits
 
-        self.bins = np.zeros((self.nbins, self.nbins))
+        self.pdf = np.zeros((self.xnbins, self.ynbins))
         s = self.chunksize
         for i in range(0, self.n, s):
             r = stats.binned_statistic_2d(h5[self.xvar][i:i+s],
                                           h5[self.yvar][i:i+s],
                                           h5['mult'][i:i+s],
                                           'sum',
-                                          bins=self.nbins,
+                                          bins=(self.xbins, self.ybins),
                                           range=[self.xlimits, self.ylimits])
-            self.bins += r.statistic
-        self.bins = self.bins.T
+            self.pdf += r.statistic
+        self.pdf = self.pdf.T
 
         self.xbin_edges  = r.x_edge
         self.ybin_edges  = r.y_edge
@@ -104,13 +108,13 @@ class twoD:
         X, Y = np.meshgrid(self.xcenters, self.ycenters)
 
         if levels == None:
-            levels = np.linspace(0, self.bins.max(), 10)[1:]
+            levels = np.linspace(0, self.pdf.max(), 10)[1:]
         else:
-            levels = np.append(self.credibleregions(levels), self.bins.max())
+            levels = np.append(self.credibleregions(levels), self.pdf.max())
 
         cmap = matplotlib.cm.gist_heat_r
         colors = [cmap(i) for i in np.linspace(0.2,0.8,len(levels))][1:]
-        ax.contourf(X, Y, self.bins, levels=levels, colors=colors)
+        ax.contourf(X, Y, self.pdf, levels=levels, colors=colors)
 
         ax.set_xlabel('%s [%s]' % (self.xname, self.xunit))
         ax.set_ylabel('%s [%s]' % (self.yname, self.yunit))
@@ -126,7 +130,7 @@ class twoD:
         levels = np.zeros(probs.size)
 
         for i, p in enumerate(probs):
-            while np.ma.masked_where(self.bins < levels[i], self.bins).sum() > p:
+            while np.ma.masked_where(self.pdf < levels[i], self.pdf).sum() > p:
                 levels[i] += step
 
         return levels
