@@ -1,8 +1,6 @@
 import h5py
 import numpy as np
 import scipy as sp
-import scipy.sparse
-import scipy.signal
 import itertools
 
 def threenum(h5file, var):
