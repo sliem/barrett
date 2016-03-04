@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import scipy.stats as stats
+from scipy.optimize import brentq
 import h5py
 import barrett.util as util
 
@@ -124,13 +125,5 @@ class twoD:
         """ Calculates the credible regions.
         """
 
-        step = 0.0001
+        return [brentq(lambda l:  self.pdf[self.pdf > l].sum() - p, 0.0, 1.0) for p in probs]
 
-        probs = np.array(probs)
-        levels = np.zeros(probs.size)
-
-        for i, p in enumerate(probs):
-            while np.ma.masked_where(self.pdf < levels[i], self.pdf).sum() > p:
-                levels[i] += step
-
-        return levels
