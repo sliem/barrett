@@ -108,7 +108,7 @@ class twoD:
 
         X, Y = np.meshgrid(self.xcenters, self.ycenters)
 
-        if levels == None:
+        if levels is None:
             levels = np.linspace(0, self.pdf.max(), 10)[1:]
         else:
             levels = np.append(self.credibleregions(levels), self.pdf.max())
