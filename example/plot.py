@@ -8,7 +8,7 @@ import matplotlib.pyplot as plt
 from scipy.ndimage.filters import gaussian_filter
 
 def main():
-    """ We here demostrate the basic functionality of barrett. We use a global scan 
+    """ We here demostrate the basic functionality of barrett. We use a global scan
     of scalar dark matter as an example. The details aren't really important.
     """
     dataset = 'RD'
@@ -20,14 +20,65 @@ def main():
 
     plot_vs_mass(dataset, observables, 'mass_vs_observables.png')
     plot_oneD(dataset, var, 'oneD.png')
+    pairplot(dataset, var, 'pairplot.png')
+
+
+def pairplot(dataset, vars, filename, bins=60):
+    """ Plot a matrix of the specified variables with all the 2D pdfs and 1D pdfs.
+    """
+    n = len(vars)
+
+    fig, axes = plt.subplots(nrows=n, ncols=n)
+    plt.subplots_adjust(wspace=0.1, hspace=0.1)
+
+    for i, x in enumerate(vars):
+        for j, y in enumerate(vars):
+            print(((x, y), (i, j)))
+            ax = axes[j,i]
+            if j < i:
+                ax.axis('off')
+                continue
+            elif i == j:
+                P = posterior.oneD(dataset+'.h5', x, limits=limits(x), bins=bins)
+                P.plot(ax)
+                ax.set_xlim(limits(x))
+                ax.spines['right'].set_visible(False)
+                ax.spines['top'].set_visible(False)
+                ax.xaxis.set_ticks_position('bottom')
+                ax.set_yticks([])
+            else:
+                P = posterior.twoD(dataset+'.h5', x, y,
+                        xlimits=limits(x), ylimits=limits(y), xbins=bins, ybins=bins)
+
+                # apply some gaussian smoothing to make the contours slightly smoother
+                sigmas = (np.diff(P.ycenters)[0], np.diff(P.xcenters)[0])
+                P.pdf = gaussian_filter(P.pdf, sigmas, mode='nearest')
+                P.plot(ax, levels=np.linspace(0.9, 0.1, 9))
+                ax.set_xlim(limits(x))
+                ax.set_ylim(limits(y))
+
+            # now we clean up labels, ticks and such
+            leftmostcol = i == 0
+            bottomrow = j == n-1
+            ax.set_xlabel(labels(x) if bottomrow else '')
+            ax.set_ylabel(labels(y) if leftmostcol else '')
+
+            if not leftmostcol:
+                ax.set_yticklabels([])
+            if not bottomrow:
+                ax.set_xticklabels([])
+
+    fig.set_size_inches(n*4,n*4)
+    fig.savefig(filename, dpi=200, bbox_inches='tight')
+    plt.close(fig)
 
 
 def plot_vs_mass(dataset, vars, filename, bins=60):
     """ Plot 2D marginalised posteriors of the 'vars' vs the dark matter mass.
-    We plot the one sigma, and two sigma filled contours. More contours can be plotted 
+    We plot the one sigma, and two sigma filled contours. More contours can be plotted
     which produces something more akin to a heatmap.
 
-    If one require more complicated plotting, it is recommended to write a custom 
+    If one require more complicated plotting, it is recommended to write a custom
     plotting function by extending the default plot() method.
     """
 
@@ -37,14 +88,13 @@ def plot_vs_mass(dataset, vars, filename, bins=60):
                              ncols=1,
                              sharex='col',
                              sharey=False)
-
     plt.subplots_adjust(wspace=0, hspace=0)
 
     m = 'log(m_{\chi})'
 
     for i, y in enumerate(vars):
         ax = axes[i]
-        P = posterior.twoD(dataset+'.h5', m, y, 
+        P = posterior.twoD(dataset+'.h5', m, y,
                            xlimits=limits(m), ylimits=limits(y), xbins=bins, ybins=bins)
 
         # apply some gaussian smoothing to make the contours slightly smoother
@@ -57,7 +107,6 @@ def plot_vs_mass(dataset, vars, filename, bins=60):
 
     fig.set_size_inches(4,n*3)
     fig.savefig(filename, dpi=200, bbox_inches='tight')
-
     plt.close(fig)
 
 
@@ -72,16 +121,13 @@ def plot_oneD(dataset, vars, filename, bins=60):
 
     for i, x in enumerate(vars):
         ax = axes[i]
-
         P = posterior.oneD(dataset+'.h5', x, limits=limits(x), bins=bins)
         P.plot(ax)
         ax.set_xlabel(labels(x))
-
         ax.set_yticklabels([])
 
     fig.set_size_inches(4, 4*n)
     fig.savefig(filename, dpi=200, bbox_inches='tight')
-
     plt.close(fig)
 
 
