@@ -1,4 +1,6 @@
-# barrett
+=======
+barrett
+=======
 
 barrett is a software package meant to replace getplots in the [SuperBayeS](http://superbayes.org/)
 package. Main differential feature is out-of-core processing so the
@@ -6,7 +8,8 @@ code can handle very large datasets.
 
 Specific technologies: HDF5, and Python (h5py, numpy, matplotlib).
 
-## Usage
+Usage
+-----
 
 barrett is split into four submodules:
 
@@ -29,8 +32,8 @@ The code is not parallelised, instead I recommend using Python's multiprocessing
 producing several plots asynchronously. In most system tested the analysis is CPU bound, your
 mileage may vary.
 
-
-## Example
+Example
+-----
 
 Please check the example directory for plot.py for an, you guessed it, example.
 
