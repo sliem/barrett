@@ -2,9 +2,9 @@
 barrett
 =======
 
-barrett is a software package meant to replace getplots in the [SuperBayeS](http://superbayes.org/)
-package. Main differential feature is out-of-core processing so the
-code can handle very large datasets.
+barrett is a software package meant to replace getplots in the SuperBayeS
+package or other MultiNest applicationsj. Main differential feature is out-of-core processing 
+so the code can handle very large datasets.
 
 Specific technologies: HDF5, and Python (h5py, numpy, matplotlib).
 
