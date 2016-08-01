@@ -2,11 +2,11 @@
 barrett
 =======
 
-barrett is a software package meant to replace getplots in the SuperBayeS
-package or other MultiNest applicationsj. Main differential feature is out-of-core processing 
-so the code can handle very large datasets.
+barrett is a software package meant to process and visualise the output of the nested sampling
+algorithm MultiNest. There are several packages already on the market for this, but barrett's
+main differential feature is out-of-core processing so the code can handle very large datasets.
 
-Specific technologies: HDF5, and Python (h5py, numpy, matplotlib).
+Specific technologies: HDF5, and Python (h5py, scipy, numpy, matplotlib).
 
 Usage
 -----
@@ -27,9 +27,8 @@ barrett is split into four submodules:
 
 As for parallelisation; writing to the same hdf5 file is strongly discouraged. Reading the file
 is however perfectly fine. So posterior/profilelikelihood module is perfectly parallelisable.
-
-The code is not parallelised, instead I recommend using Python's multiprocessing module to
-producing several plots asynchronously. In most system tested the analysis is CPU bound, your
+The code itself is not parallelised, instead I recommend using Python's multiprocessing module to
+producing several plots in parallell. In most system tested the plotting is CPU bound, your
 mileage may vary.
 
 Example
