@@ -23,7 +23,7 @@ class oneD:
         self.chunksize = h5[self.var].chunks[0]
 
         self.min, self.max, self.mean = util.threenum(self.h5file, self.var)
-        self.bins = np.floor(self.n**1/2) if bins is None else bins
+        self.bins = np.floor(self.n**0.5) if bins is None else bins
         self.nbins = self.bins if np.isscalar(self.bins) else self.bins.shape[0]
         self.limits = (self.min, self.max) if limits is None else limits
 
@@ -77,9 +77,9 @@ class twoD:
         self.xmin, self.xmax, self.xmean = util.threenum(self.h5file, self.xvar)
         self.ymin, self.ymax, self.ymean = util.threenum(self.h5file, self.yvar)
 
-        self.xbins = np.floor(self.n**1/2) if xbins is None else xbins
+        self.xbins = np.floor(self.n**0.5) if xbins is None else xbins
         self.xnbins = self.xbins if np.isscalar(self.xbins) else self.xbins.shape[0] - 1
-        self.ybins = np.floor(self.n**1/2) if ybins is None else ybins
+        self.ybins = np.floor(self.n**0.5) if ybins is None else ybins
         self.ynbins = self.ybins if np.isscalar(self.ybins) else self.ybins.shape[0] - 1
         self.xlimits = (self.xmin, self.xmax) if xlimits is None else xlimits
         self.ylimits = (self.ymin, self.ymax) if ylimits is None else ylimits
@@ -98,8 +98,8 @@ class twoD:
 
         self.xbin_edges  = r.x_edge
         self.ybin_edges  = r.y_edge
-        self.xcenters = self.xbin_edges[:-1] + np.diff(self.xbin_edges)/2
-        self.ycenters = self.ybin_edges[:-1] + np.diff(self.ybin_edges)/2
+        self.xcenters = self.xbin_edges[:-1] + np.diff(self.xbin_edges)/2.0
+        self.ycenters = self.ybin_edges[:-1] + np.diff(self.ybin_edges)/2.0
 
         h5.close()
 
@@ -126,4 +126,3 @@ class twoD:
         """
 
         return [brentq(lambda l:  self.pdf[self.pdf > l].sum() - p, 0.0, 1.0) for p in probs]
-

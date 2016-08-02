@@ -40,7 +40,7 @@ def threenum(h5file, var):
         wsum  += np.sum(w_c)
     f.close()
 
-    mean = total/wsum
+    mean = total/float(wsum)
 
     return (minval, maxval, mean)
 
