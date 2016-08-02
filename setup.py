@@ -21,7 +21,7 @@ setup(name='barrett',
         'Intended Audience :: Science/Research',
         'Topic :: Scientific/Engineering :: Visualization',
         'License :: OSI Approved :: ISC License (ISCL)',
-        'Programming Language :: Python :: 3'
+        'Programming Language :: Python :: 3',
         'Programming Language :: Python :: 2.7'
       ],
       keywords='out-of-core multinest statistics visualisation',
