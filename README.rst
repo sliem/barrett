@@ -33,16 +33,16 @@ mileage may vary.
 
 Cite
 ----
-If you use barrett in your research please cite arXiv:1608.00990.
+If you use barrett in your research please cite arXiv:1608.00990:
 
-@article{2016arXiv160800990L,
-  author = {Liem, Sebastian},
-  title = "{Barrett: out-of-core processing of MultiNest output}",
-  archivePrefix = "arXiv",
-  eprint = {1608.00990},
-  primaryClass = "stat.CO",
-  year = 2016
-}
+  @article{2016arXiv160800990L,
+    author = {Liem, Sebastian},
+    title = "{Barrett: out-of-core processing of MultiNest output}",
+    archivePrefix = "arXiv",
+    eprint = {1608.00990},
+    primaryClass = "stat.CO",
+    year = 2016
+  }
 
 Example
 -------
