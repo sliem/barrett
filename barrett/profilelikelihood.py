@@ -115,7 +115,7 @@ class twoD:
         else:
             levels = np.append(self.confidenceregions(levels), self.proflike.max())
 
-        cmap = matplotlib.cm.gist_heat_r
+        cmap = matplotlib.cm.Greens
         colors = [cmap(i) for i in np.linspace(0.2,0.8,len(levels))][1:]
 
         ax.contourf(X, Y, self.proflike, levels=levels, colors=colors)
