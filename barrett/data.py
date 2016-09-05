@@ -100,7 +100,7 @@ class Chain:
         other_h5.close()
 
 
-    def bestfit(self, columns=None):
+    def bestfit(self):
 
         h5 = h5py.File(self.h5file, 'r')
         chi2 = h5['-2lnL']
@@ -115,16 +115,23 @@ class Chain:
                 minimum = chunk_minimum
                 index = chunk_index
 
-        if columns == None:
-            p = {}
-            for k in h5.keys():
-                p[k] = h5[k][index]
-        else:
-            p = []
-            for c in columns:
-                p.append(h5[c][index])
-            p = np.array(p)
+        p = {}
+        for k in h5.keys():
+            p[k] = h5[k][index]
+        return p
 
+
+    def posterior_mean(self, columns=None):
+        h5 = h5py.File(self.h5file, 'r')
+        s = self.chunksize
+
+        p = {}
+        for k in h5.keys():
+            p[k] = 0.0
+
+        for i in range(0, self.n, s):
+            for k in h5.keys():
+                p[k] += np.sum(h5['mult'][i:i+s]*h5[k][i:i+s])
         return p
 
 
