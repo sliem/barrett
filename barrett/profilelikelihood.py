@@ -43,14 +43,19 @@ class oneD:
         h5.close()
 
 
-    def plot(self, ax):
+    def plot(self, ax, **hist_kwargs):
+
+        defaults = {
+                'color' : 'green',
+                'alpha' : 0.5,
+                'histtype' : 'stepfilled'
+        }
+        defaults.update(hist_kwargs)
 
         ax.hist(self.bin_edges[:-1],
                 bins=self.bin_edges,
                 weights=self.proflike,
-                histtype='stepfilled',
-                alpha=0.5,
-                color='green')
+                **defaults)
 
         ax.set_ylim(0, self.proflike.max()*1.1)
         ax.set_xlabel('%s [%s]' % (self.name, self.unit))
@@ -106,7 +111,7 @@ class twoD:
         h5.close()
 
 
-    def plot(self, ax, levels=[0.95, 0.68]):
+    def plot(self, ax, levels=[0.95, 0.68], cmap=None, **contourf_kwargs):
 
         X, Y = np.meshgrid(self.xcenters, self.ycenters)
 
@@ -115,10 +120,18 @@ class twoD:
         else:
             levels = np.append(self.confidenceregions(levels), self.proflike.max())
 
-        cmap = matplotlib.cm.Greens
+        if cmap is None:
+            cmap = matplotlib.cm.Greens
+
         colors = [cmap(i) for i in np.linspace(0.2,0.8,len(levels))][1:]
 
-        ax.contourf(X, Y, self.proflike, levels=levels, colors=colors)
+
+        defaults = {
+                'colors' : colors
+        }
+        defaults.update(contourf_kwargs)
+
+        ax.contourf(X, Y, self.proflike, levels=levels, **defaults)
 
         ax.set_xlabel('%s [%s]' % (self.xname, self.xunit))
         ax.set_ylabel('%s [%s]' % (self.yname, self.yunit))
