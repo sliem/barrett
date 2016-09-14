@@ -42,14 +42,19 @@ class oneD:
         h5.close()
 
 
-    def plot(self, ax):
+    def plot(self, ax, **hist_kwargs):
+
+        defaults = {
+                'color'    : 'red',
+                'alpha'    : 0.5,
+                'histtype' : 'stepfilled'
+        }
+        defaults.update(hist_kwargs)
 
         ax.hist(self.bin_edges[:-1],
                  bins=self.bin_edges,
                  weights=self.pdf,
-                 histtype='stepfilled',
-                 alpha=0.5,
-                 color='red')
+                 **defaults)
 
         ax.set_ylim(0, self.pdf.max()*1.1)
         ax.set_xlabel('%s [%s]' % (self.name, self.unit))
@@ -104,7 +109,7 @@ class twoD:
         h5.close()
 
 
-    def plot(self, ax, levels=[0.95, 0.68]):
+    def plot(self, ax, levels=[0.95, 0.68], cmap=None, **contourf_kwargs):
 
         X, Y = np.meshgrid(self.xcenters, self.ycenters)
 
@@ -113,9 +118,17 @@ class twoD:
         else:
             levels = np.append(self.credibleregions(levels), self.pdf.max())
 
-        cmap = matplotlib.cm.gist_heat_r
+        if cmap is None:
+            cmap = matplotlib.cm.gist_heat_r
+
         colors = [cmap(i) for i in np.linspace(0.2,0.8,len(levels))][1:]
-        ax.contourf(X, Y, self.pdf, levels=levels, colors=colors)
+
+        defaults = {
+                'colors'    : colors,
+        }
+        defaults.update(contourf_kwargs)
+
+        ax.contourf(X, Y, self.pdf, levels=levels, **defaults)
 
         ax.set_xlabel('%s [%s]' % (self.xname, self.xunit))
         ax.set_ylabel('%s [%s]' % (self.yname, self.yunit))
