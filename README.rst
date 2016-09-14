@@ -31,18 +31,25 @@ The code itself is not parallelised, instead I recommend using Python's multipro
 producing several plots in parallell. In most system tested the plotting is CPU bound, your
 mileage may vary.
 
+Installation
+------------
+
+Barrett is available on PyPI and can be installed using pip
+
+  pip install barrett
+
 Cite
 ----
 If you use barrett in your research please cite arXiv:1608.00990:
 
-  @article{2016arXiv160800990L,
+@article{2016arXiv160800990L,
     author = {Liem, Sebastian},
     title = "{Barrett: out-of-core processing of MultiNest output}",
     archivePrefix = "arXiv",
     eprint = {1608.00990},
     primaryClass = "stat.CO",
     year = 2016
-  }
+}
 
 Example
 -------
