@@ -9,7 +9,7 @@ import barrett.util as util
 class oneD:
     """ Calculate and plot the one dimensional profile likelihood.
     """
-    def __init__(self, h5file, var, limits=None, bins=None):
+    def __init__(self, h5file, var, limits=None, bins=None, lnl_col='-2lnL'):
 
         self.h5file = h5file
         self.var = var
@@ -29,7 +29,7 @@ class oneD:
         s = self.chunksize
         for i in range(0, self.n, s):
             r = stats.binned_statistic(h5[self.var][i:i+s],
-                                       h5['-2lnL'][i:i+s],
+                                       h5[lnl_col][i:i+s],
                                        np.nanmin,
                                        bins=self.bins,
                                        range=self.limits)
@@ -64,7 +64,7 @@ class twoD:
     """ Calculate and plot the two dimensional profile likelihood.
     """
 
-    def __init__(self, h5file, xvar, yvar, xlimits=None, ylimits=None, xbins=None, ybins=None):
+    def __init__(self, h5file, xvar, yvar, xlimits=None, ylimits=None, xbins=None, ybins=None, lnl_col='-2lnL'):
 
         self.h5file = h5file
         self.xvar = xvar
@@ -92,7 +92,7 @@ class twoD:
         for i in range(0, self.n, s):
             r = stats.binned_statistic_2d(h5[self.xvar][i:i+s],
                                           h5[self.yvar][i:i+s],
-                                          h5['-2lnL'][i:i+s],
+                                          h5[lnl_col][i:i+s],
                                           np.nanmin,
                                           bins=[self.xbins, self.ybins],
                                           range=[self.xlimits, self.ylimits])

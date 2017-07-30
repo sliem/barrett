@@ -14,8 +14,9 @@ class Chain:
 
         else:
             f = h5py.File(self.h5file, 'r')
-            self.chunksize = f['mult'].chunks[0]
-            self.n = f['mult'].shape[0]
+            col = tuple(f.keys())[0]
+            self.chunksize = f[post_col].chunks[0]
+            self.n = f[post_col].shape[0]
 
         f.close()
 
@@ -67,7 +68,8 @@ class Chain:
             print('Not compatible datasets. Symmetric difference: %s\n' % sym_diff_keys)
             return
 
-        other_n = other_h5['mult'].shape[0]
+        col = tuple(other_h5.keys())[0]
+        other_n = other_h5[col].shape[0]
 
         starts = list(range(0, other_n, self.chunksize))
         ends   = starts[1:] + [other_n]
@@ -82,7 +84,8 @@ class Chain:
 
                 h5[k][nrows:] = other_h5[k][s:e]
 
-        self.n = h5['mult'].shape[0]
+        col = tuple(h5.keys())[0]
+        self.n = h5[col].shape[0]
 
         h5.close()
         other_h5.close()
@@ -109,7 +112,7 @@ class Chain:
         return p
 
 
-    def posterior_mean(self, columns=None):
+    def posterior_mean(self, post_col='mult', columns=None):
         h5 = h5py.File(self.h5file, 'r')
         s = self.chunksize
 
@@ -119,7 +122,7 @@ class Chain:
 
         for i in range(0, self.n, s):
             for k in h5.keys():
-                p[k] += np.sum(h5['mult'][i:i+s]*h5[k][i:i+s])
+                p[k] += np.sum(h5[post_col][i:i+s]*h5[k][i:i+s])
         return p
 
 

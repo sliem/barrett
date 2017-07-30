@@ -10,7 +10,7 @@ import barrett.util as util
 class oneD:
     """ Calculate and plot the one dimensional marginalised posteriors.
     """
-    def __init__(self, h5file, var, limits=None, bins=None):
+    def __init__(self, h5file, var, limits=None, bins=None, post_col='mult'):
 
         self.h5file = h5file
         self.var = var
@@ -30,7 +30,7 @@ class oneD:
         s = self.chunksize
         for i in range(0, self.n, s):
             r = stats.binned_statistic(h5[self.var][i:i+s],
-                                       h5['mult'][i:i+s],
+                                       h5[post_col][i:i+s],
                                        'sum',
                                        bins=self.bins,
                                        range=self.limits)
@@ -63,7 +63,7 @@ class twoD:
     """ Calculate and plot the two dimensional marginalised posteriors.
     """
 
-    def __init__(self, h5file, xvar, yvar, xlimits=None, ylimits=None, xbins=None, ybins=None):
+    def __init__(self, h5file, xvar, yvar, xlimits=None, ylimits=None, xbins=None, ybins=None, post_col='mult'):
 
         self.h5file = h5file
         self.xvar = xvar
@@ -91,7 +91,7 @@ class twoD:
         for i in range(0, self.n, s):
             r = stats.binned_statistic_2d(h5[self.xvar][i:i+s],
                                           h5[self.yvar][i:i+s],
-                                          h5['mult'][i:i+s],
+                                          h5[post_col][i:i+s],
                                           'sum',
                                           bins=(self.xbins, self.ybins),
                                           range=[self.xlimits, self.ylimits])

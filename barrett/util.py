@@ -3,7 +3,7 @@ import numpy as np
 import scipy as sp
 import itertools
 
-def threenum(h5file, var):
+def threenum(h5file, var, post_col='mult'):
     """ Calculates the three number summary for a variable.
 
     The three number summary is the minimum, maximum and the mean
@@ -14,7 +14,7 @@ def threenum(h5file, var):
     """
     f = h5py.File(h5file, 'r')
     d = f[var]
-    w = f['mult']
+    w = f[post_col]
     s = d.chunks[0]
 
     n = d.shape[0]
