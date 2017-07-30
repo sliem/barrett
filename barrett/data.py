@@ -20,32 +20,25 @@ class Chain:
         f.close()
 
 
-    def create_column(self, name, unit):
+    def create_column(self, name):
         h5 = h5py.File(self.h5file, 'r+')
 
-        dset = h5.create_dataset(name,
-                                 shape=(self.n,),
-                                 maxshape=(None,),
-                                 dtype=np.float64,
-                                 chunks=(self.chunksize,),
-                                 compression='gzip',
-                                 shuffle=True)
-
-        if unit == None:
-            unit = ''
-
-        dset.attrs.create('unit', unit.encode('utf8'))
+        h5.create_dataset(name,
+                          shape=(self.n,),
+                          maxshape=(None,),
+                          dtype=np.float64,
+                          chunks=(self.chunksize,),
+                          compression='gzip',
+                          shuffle=True)
 
         h5.close()
 
 
-    def apply(self, d_name, unit, func, *args):
+    def apply(self, d_name, func, *args):
         h5 = h5py.File(self.h5file, 'r+')
 
         if d_name not in h5:
-            if unit == None:
-                unit = ''
-            self.create_column(d_name, unit)
+            self.create_column(d_name)
 
         d = h5[d_name]
 
@@ -57,16 +50,11 @@ class Chain:
             val = func(*[v[i:i+s] for v in vs])
             d[i:i+s] = val
 
-        # Update the column units if necessary.
-        unit = unit.encode('utf8')
-        if d.attrs.get('unit') != unit:
-            d.attrs['unit'] = unit
-
         h5.close()
 
 
-    def transform_column(self, column, unit, func):
-        self.apply(column, unit, func, column)
+    def transform_column(self, column, func):
+        self.apply(column, func, column)
 
 
     def append(self, other):
@@ -135,18 +123,9 @@ class Chain:
         return p
 
 
-    def get_unit(self, column):
-        h5 = h5py.File(self.h5file, 'r')
-        unit = h5[column].attrs.get('unit').decode('utf8')
-        h5.close()
-
-        return unit
-
-
     def log(self, column):
         h5 = h5py.File(self.h5file, 'r+')
 
-        unit = 'log(%s)' % h5[column].attrs.get('unit').decode('utf8')
-        self.apply('log(%s)' % column, unit, np.log10, column)
+        self.apply('log(%s)' % column, np.log10, column)
 
         h5.close()

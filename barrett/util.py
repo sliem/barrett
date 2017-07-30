@@ -57,7 +57,6 @@ def filechunk(f, chunksize):
 def convert_chain(
         txtfiles,
         headers,
-        units,
         h5file,
         chunksize):
     """Converts chain in plain text format into HDF5 format.
@@ -65,7 +64,6 @@ def convert_chain(
     Keyword arguments:
     txtfiles -- list of paths to the plain text chains.
     headers -- name of each column.
-    units -- the unit of each column.
     h5file -- where to put the resulting HDF5 file.
     chunksize -- how large the HDF5 chunk, i.e. number of rows.
 
@@ -77,16 +75,14 @@ def convert_chain(
 
     h5 = h5py.File(h5file, 'w')
 
-    for h, u in zip(headers, units):
-        dset = h5.create_dataset(h,
-                                 shape=(0,),
-                                 maxshape=(None,),
-                                 dtype=np.float64,
-                                 chunks=(chunksize,),
-                                 compression='gzip',
-                                 shuffle=True)
-
-        dset.attrs.create('unit', u.encode('utf8'))
+    for h in headers:
+        h5.create_dataset(h,
+                          shape=(0,),
+                          maxshape=(None,),
+                          dtype=np.float64,
+                          chunks=(chunksize,),
+                          compression='gzip',
+                          shuffle=True)
 
     for txtfile in txtfiles:
 

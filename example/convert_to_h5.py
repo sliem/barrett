@@ -4,7 +4,7 @@ def main():
 	chains = ['RD.txt']
 
 	for c in chains:
-		util.convert_chain([c], headers, units, c.split('.')[0]+'.h5', 5000)
+		util.convert_chain([c], headers, c.split('.')[0]+'.h5', 5000)
 
 headers = [
 'mult',
@@ -37,36 +37,6 @@ headers = [
 'R',
 '<\sigma v>']
 
-units = [
-'',
-'',
-'GeV^{-2}',
-'GeV^{-2}',
-'GeV^{-2}',
-'GeV^{-2}',
-'GeV^{-2}',
-'GeV^{-2}',
-'GeV',
-'GeV',
-'GeV',
-'',
-'',
-'',
-'',
-'',
-'',
-'',
-'',
-'GeV/cm^3',
-'Km/s',
-'Km/s',
-'Km/s',
-'',
-'pb',
-'pb',
-'pb',
-'counts/kg/day/keV',
-'cm^3 s^{-1}']
 
 if __name__ == '__main__':
 	main()

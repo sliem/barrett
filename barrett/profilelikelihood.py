@@ -18,7 +18,6 @@ class oneD:
 
         self.n = h5[self.var].shape[0]
         self.name = h5[self.var].name
-        self.unit = h5[self.var].attrs['unit'].decode('utf8')
         self.chunksize = h5[self.var].chunks[0]
 
         self.min, self.max, self.mean = util.threenum(self.h5file, self.var)
@@ -58,7 +57,7 @@ class oneD:
                 **defaults)
 
         ax.set_ylim(0, self.proflike.max()*1.1)
-        ax.set_xlabel('%s [%s]' % (self.name, self.unit))
+        ax.set_xlabel('%s' % (self.name))
 
 
 class twoD:
@@ -76,9 +75,7 @@ class twoD:
         self.n = h5[self.xvar].shape[0]
         self.chunksize = h5[self.xvar].chunks[0]
         self.xname = h5[self.xvar].name
-        self.xunit = h5[self.xvar].attrs['unit'].decode('utf8')
         self.yname = h5[self.yvar].name
-        self.yunit = h5[self.yvar].attrs['unit'].decode('utf8')
 
         self.xmin, self.xmax, self.xmean = util.threenum(self.h5file, self.xvar)
         self.ymin, self.ymax, self.ymean = util.threenum(self.h5file, self.yvar)
@@ -133,8 +130,8 @@ class twoD:
 
         ax.contourf(X, Y, self.proflike, levels=levels, **defaults)
 
-        ax.set_xlabel('%s [%s]' % (self.xname, self.xunit))
-        ax.set_ylabel('%s [%s]' % (self.yname, self.yunit))
+        ax.set_xlabel('%s' % (self.xname))
+        ax.set_ylabel('%s' % (self.yname))
 
 
     def confidenceregions(self, probs):
