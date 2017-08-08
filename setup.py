@@ -9,7 +9,7 @@ with open(path.join(here, 'README.rst'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(name='barrett',
-      version='0.2.0',
+      version='0.2.1',
       description='out-of-core processing and plotting of MultiNest output',
       long_description=long_description,
       url='https://github.com/sliem/barrett',
