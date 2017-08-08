@@ -15,8 +15,8 @@ class Chain:
         else:
             f = h5py.File(self.h5file, 'r')
             col = tuple(f.keys())[0]
-            self.chunksize = f[post_col].chunks[0]
-            self.n = f[post_col].shape[0]
+            self.chunksize = f[col].chunks[0]
+            self.n = f[col].shape[0]
 
         f.close()
 
